@@ -1,0 +1,279 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f4f4f4;
+}
+
+/* Navbar */
+
+.navbar{
+    background:#007bff;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 50px;
+}
+
+.navbar h2{
+    font-size:28px;
+}
+
+.menu a{
+    color:white;
+    text-decoration:none;
+    margin-left:20px;
+    font-weight:bold;
+}
+
+.menu a:hover{
+    color:yellow;
+}
+
+/* Hero Section */
+
+.hero{
+    text-align:center;
+    padding:80px 20px;
+    background:white;
+}
+
+.hero h1{
+    font-size:40px;
+    color:#333;
+}
+
+.hero p{
+    margin:20px 0;
+    font-size:18px;
+    color:gray;
+}
+
+.hero button{
+    background:#007bff;
+    color:white;
+    border:none;
+    padding:16px 40px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.hero button:hover{
+    background:#0056b3;
+}
+
+/* Form */
+
+.form-container{
+    width:400px;
+    background:white;
+    margin:50px auto;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.form-container h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.form-container input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+.form-container input[type="submit"]{
+    background:#007bff;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.form-container input[type="submit"]:hover{
+    background:#0056b3;
+}
+
+/* Cards */
+
+.features{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    padding:40px;
+}
+
+.card{
+    background:white;
+    width:250px;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.card h3{
+    margin-bottom:15px;
+    color:#007bff;
+}
+
+.card p{
+    color:#555;
+}
+
+.form-container textarea{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:5px;
+    resize:none;
+}
+
+.products-container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:25px;
+    padding:30px;
+}
+
+.product-card{
+    background:white;
+    width:250px;
+    padding:20px;
+    text-align:center;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.product-card img{
+    object-fit:cover;
+    border-radius:8px;
+}
+
+.product-card button{
+    background:#dc3545;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    cursor:pointer;
+    border-radius:5px;
+}
+/* Search Bar */
+
+.search-box{
+    text-align:center;
+    margin:20px 0;
+}
+
+.search-box input{
+    width:300px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:16px;
+}
+
+.search-box button{
+    background:#007bff;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.search-box button:hover{
+    background:#0056b3;
+}
+
+/* General Buttons */
+
+button{
+    background:#007bff;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+/* Delete Button inside product card */
+
+.product-card a[href*="delete"] button{
+    background:#dc3545;
+}
+
+.product-card a[href*="delete"] button:hover{
+    background:#b02a37;
+}
+
+/* Add to Cart Button */
+
+.product-card a[href*="CartServlet"] button{
+    background:#28a745;
+}
+
+.product-card a[href*="CartServlet"] button:hover{
+    background:#1e7e34;
+}
+
+/* Checkout / Continue Shopping buttons */
+
+.form-container button,
+.card button{
+    background:#007bff;
+    color:white;
+    padding:12px 28px;
+    border-radius:6px;
+}
+
+.form-container button:hover,
+.card button:hover{
+    background:#0056b3;
+}
+
+/* Dashboard Buttons */
+
+.card{
+    width:700px;
+    margin:35px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.card a{
+    display:inline-block;
+    margin:10px;
+    padding:12px 22px;
+    background:#007bff;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.card a:hover{
+    background:#0056b3;
+}
