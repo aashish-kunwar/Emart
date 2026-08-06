@@ -1,63 +1,98 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
+
 <title>EMart</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet"
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=7">
 
 </head>
+
 <body>
 
-<div class="navbar">
+<!-- Common Navbar -->
+<jsp:include page="navbar.jsp" />
 
-    <h2>EMart</h2>
+<!-- Hero Section -->
 
-    <div class="menu">
-        <a href="index.jsp">Home</a>
-        <a href="login.jsp">Login</a>
-        <a href="register.jsp">Register</a>
+<div class="hero">
+
+    <div class="hero-content">
+
+        <span class="hero-badge">
+            NEW ARRIVALS EVERY WEEK
+        </span>
+
+        <h1>
+            Big Deals,
+            <span>Every Day</span>
+        </h1>
+
+        <p>
+            Explore authentic local products including fresh vegetables,
+            homemade foods, traditional wear, handicrafts and daily essentials
+            — all from trusted local sellers.
+        </p>
+
+        <a href="login.jsp">
+            <button>
+                Shop Now →
+            </button>
+        </a>
+
     </div>
 
 </div>
 
-<div class="hero">
-
-    <h1>EMart</h1>
-
-    <p>
-        Buy your favourite products at affordable prices.
-    </p>
-
-    <a href="login.jsp">
-        <button>Shop Now</button>
-    </a>
-
-</div>
+<!-- Features -->
 
 <div class="features">
 
     <div class="card">
+
+        <div class="feature-icon">✓</div>
+
         <h3>Quality Products</h3>
-        <p>Best products for customers.</p>
+
+        <p>
+            Authentic and high-quality products from trusted sellers.
+        </p>
+
     </div>
 
     <div class="card">
+
+        <div class="feature-icon">🛒</div>
+
         <h3>Easy Shopping</h3>
-        <p>Simple and secure shopping experience.</p>
+
+        <p>
+            A simple, convenient and secure shopping experience.
+        </p>
+
     </div>
 
     <div class="card">
+
+        <div class="feature-icon">🚚</div>
+
         <h3>Fast Delivery</h3>
-        <p>Quick delivery to your location.</p>
+
+        <p>
+            Quick and reliable delivery directly to your location.
+        </p>
+
     </div>
 
 </div>
 
 </body>
-</html>
 
+</html>

@@ -1,4 +1,3 @@
-
 package model;
 
 public class Product {
@@ -8,6 +7,7 @@ public class Product {
     private String description;
     private double price;
     private String image;
+    private String category;
 
     public Product() {
     }
@@ -51,5 +51,12 @@ public class Product {
     public void setImage(String image) {
         this.image = image;
     }
-}
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+}

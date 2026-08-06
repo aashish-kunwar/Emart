@@ -14,36 +14,70 @@ if(user == null){
 
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>EMart Home</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+
+<meta charset="UTF-8">
+
+<title>EMart Home</title>
+
+<link rel="stylesheet"
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=7">
+
 </head>
+
 <body>
 
 <jsp:include page="navbar.jsp" />
 
 <div class="hero">
-    <h1>Welcome to eMart, <%= user.getName() %> 👋</h1>
-    <p>You have successfully logged in.</p>
+
+    <h1>
+        Welcome to eMart, <%=user.getName()%> 👋
+    </h1>
+
+    <p>
+        Discover products, manage your cart and track your orders.
+    </p>
+
 </div>
 
 <div class="features">
 
 <%
-if(user.getRole().equals("admin")){
+if("admin".equals(user.getRole())){
 %>
 
     <div class="card">
-        <h3>Admin Dashboard</h3>
-        <p>Manage your eMart store easily.</p>
 
-        
-        <a href="addProduct.jsp">Add Products</a>
-        
-        <a href="ProductServlet">View Products</a>
-        
-        <a href="AdminOrderServlet">Manage Orders</a>
+        <h3>Admin Dashboard</h3>
+
+        <p>
+            Manage products and customer orders from one place.
+        </p>
+
+        <div class="dashboard-buttons">
+
+            <a href="addProduct.jsp">
+                <button type="button">
+                    Add Products
+                </button>
+            </a>
+
+            <a href="ProductServlet">
+                <button type="button">
+                    View Products
+                </button>
+            </a>
+
+            <a href="AdminOrderServlet">
+                <button type="button">
+                    Manage Orders
+                </button>
+            </a>
+
+        </div>
+
     </div>
 
 <%
@@ -51,15 +85,35 @@ if(user.getRole().equals("admin")){
 %>
 
     <div class="card">
-        <h3>Customer Dashboard</h3>
-        <p>Start shopping your favourite products.</p>
 
-        <br>
-        <a href="ProductServlet">Browse Products</a>
-        <br><br>
-        <a href="CartServlet">View Cart</a>
-        <br><br>
-        <a href="OrderServlet?action=myOrders">My Orders</a>
+        <h3>Customer Dashboard</h3>
+
+        <p>
+            Browse products, check your cart and track your orders.
+        </p>
+
+        <div class="dashboard-buttons">
+
+            <a href="ProductServlet">
+                <button type="button">
+                    Browse Products
+                </button>
+            </a>
+
+            <a href="CartServlet">
+                <button type="button">
+                    View Cart
+                </button>
+            </a>
+
+            <a href="OrderServlet?action=myOrders">
+                <button type="button">
+                    My Orders
+                </button>
+            </a>
+
+        </div>
+
     </div>
 
 <%
@@ -69,4 +123,5 @@ if(user.getRole().equals("admin")){
 </div>
 
 </body>
+
 </html>

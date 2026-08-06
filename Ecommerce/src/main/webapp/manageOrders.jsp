@@ -8,7 +8,8 @@
 
 <title>Manage Orders - EMart</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet"
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=7">
 
 </head>
 

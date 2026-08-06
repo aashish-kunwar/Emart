@@ -1,65 +1,87 @@
+<%@ page import="model.User" %>
+
+<%
+User user = (User) session.getAttribute("user");
+%>
+
 <div class="navbar">
 
-    <h2>EMart</h2>
+    <!-- Logo -->
+    <a href="<%=request.getContextPath()%>/home.jsp" class="logo">
 
+        <img src="<%=request.getContextPath()%>/assets/images/logo.svg"
+             alt="EMart Logo">
+
+    </a>
+
+    <!-- Menu -->
     <div class="menu">
 
-        <a href="index.jsp">Home</a>
+        <% if(user == null){ %>
 
-        <a href="ProductServlet">Products</a>
+            <a href="<%=request.getContextPath()%>/index.jsp">Home</a>
 
+        <% } else { %>
 
-        <%
-        model.User user = (model.User)session.getAttribute("user");
+            <a href="<%=request.getContextPath()%>/home.jsp">Home</a>
 
-        if(user != null){
+        <% } %>
 
-            if(user.getRole().equals("customer")){
-        %>
+        <a href="<%=request.getContextPath()%>/ProductServlet">Products</a>
 
-                <a href="CartServlet">Cart</a>
+        <% if(user != null && "customer".equals(user.getRole())) { %>
 
-                <a href="OrderServlet?action=myOrders">
-                    My Orders
-                </a>
+            <a href="<%=request.getContextPath()%>/CartServlet">Cart</a>
 
+            <a href="<%=request.getContextPath()%>/OrderServlet?action=myOrders">
+                My Orders
+            </a>
 
-        <%
-            }
+        <% } %>
 
-            if(user.getRole().equals("admin")){
-        %>
+        <% if(user != null && "admin".equals(user.getRole())) { %>
 
-                <a href="AdminOrderServlet">
-                    Manage Orders
-                </a>
+            <a href="<%=request.getContextPath()%>/addProduct.jsp">
+                Add Product
+            </a>
 
+            <a href="<%=request.getContextPath()%>/ProductServlet">
+                View Products
+            </a>
 
-        <%
-            }
-        %>
+            <a href="<%=request.getContextPath()%>/AdminOrderServlet">
+                Manage Orders
+            </a>
 
-            <a href="LogoutServlet">
+        <% } %>
+
+    </div>
+
+    <!-- Right Menu -->
+    <div class="right-menu">
+
+        <% if(user == null){ %>
+
+            <a href="<%=request.getContextPath()%>/login.jsp">
+                Login
+            </a>
+
+            <a href="<%=request.getContextPath()%>/register.jsp">
+                Register
+            </a>
+
+        <% } else { %>
+
+            <span class="username">
+                Welcome, <%=user.getName()%>
+            </span>
+
+            <a href="<%=request.getContextPath()%>/LogoutServlet">
                 Logout
             </a>
 
-
-        <%
-        }
-        else{
-        %>
-
-            <a href="login.jsp">Login</a>
-
-            <a href="register.jsp">Register</a>
-
-
-        <%
-        }
-        %>
-
+        <% } %>
 
     </div>
 
 </div>
-

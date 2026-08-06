@@ -8,7 +8,8 @@
 <meta charset="UTF-8">
 <title>Register</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet"
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=7">
 
 </head>
 <body>

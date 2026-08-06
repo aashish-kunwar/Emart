@@ -1,112 +1,116 @@
+<%@ page language="java"
+    contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
 <%@ page import="model.User" %>
+
+<%
+User user = (User) session.getAttribute("user");
+
+if (user == null || !"admin".equals(user.getRole())) {
+    response.sendRedirect("login.jsp");
+    return;
+}
+%>
 
 <!DOCTYPE html>
 <html>
 
 <head>
 
+<meta charset="UTF-8">
+
 <title>Add Product - EMart</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet"
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=8">
 
 </head>
 
-
 <body>
-
 
 <jsp:include page="navbar.jsp" />
 
-
-<%
-
-User user = (User)session.getAttribute("user");
-
-
-if(user == null || !user.getRole().equals("admin")){
-
-    response.sendRedirect("login.jsp");
-    return;
-
-}
-
-%>
-
-
-
 <div class="form-container">
 
+    <h2>Add New Product</h2>
 
-<h1>
-Add New Product
-</h1>
+    <form action="ProductServlet" method="post">
 
+        <input type="hidden"
+               name="action"
+               value="add">
 
+        <label>Product Name</label>
 
-<form action="ProductServlet" method="post">
+        <input type="text"
+               name="name"
+               placeholder="Enter product name"
+               required>
 
+        <label>Description</label>
 
-<input type="hidden" name="action" value="add">
+        <textarea name="description"
+                  rows="4"
+                  placeholder="Enter product description"
+                  required></textarea>
 
+        <label>Price</label>
 
-<label>
-Product Name
-</label>
+        <input type="number"
+               name="price"
+               step="0.01"
+               min="0"
+               placeholder="Enter price"
+               required>
 
-<br>
+        <label>Image URL</label>
 
-<input type="text" name="name" required>
+        <input type="text"
+               name="image"
+               placeholder="Paste product image URL"
+               required>
 
+        <label>Category</label>
 
-<br><br>
+        <select name="category" required>
 
+            <option value="">
+                Select Category
+            </option>
 
-<label>
-Description
-</label>
+            <option value="Electronics">
+                Electronics
+            </option>
 
-<br>
+            <option value="Fashion">
+                Fashion
+            </option>
 
-<textarea name="description" required></textarea>
+            <option value="Groceries">
+                Groceries
+            </option>
 
+            <option value="Handicrafts">
+                Handicrafts
+            </option>
 
-<br><br>
+            <option value="Books">
+                Books
+            </option>
 
+            <option value="Others">
+                Others
+            </option>
 
-<label>
-Price
-</label>
+        </select>
 
-<br>
+        <input type="submit"
+               value="Add Product">
 
-<input type="number" name="price" required>
-
-
-<br><br>
-
-
-<label>
-Image URL
-</label>
-
-<br>
-
-<input type="text" name="image" required>
-
-
-<br><br>
-
-
-<button type="submit">
-Add Product
-</button>
-
-
-</form>
-
+    </form>
 
 </div>
-
 
 </body>
 

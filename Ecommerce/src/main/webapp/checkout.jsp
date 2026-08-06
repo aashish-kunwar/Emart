@@ -1,80 +1,122 @@
+
+<%@ page language="java"
+    contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="dao.CartDAO" %>
 <%@ page import="model.User" %>
+<%@ page import="model.CartItem" %>
+
+<%
+User user = (User) session.getAttribute("user");
+
+if (user == null) {
+    response.sendRedirect("login.jsp");
+    return;
+}
+
+if (!"customer".equals(user.getRole())) {
+    response.sendRedirect("home.jsp");
+    return;
+}
+
+CartDAO cartDAO = new CartDAO();
+
+ArrayList<CartItem> cart =
+        cartDAO.getCart(user.getEmail());
+
+if (cart == null || cart.isEmpty()) {
+    response.sendRedirect("CartServlet");
+    return;
+}
+
+double total = 0;
+
+for (CartItem item : cart) {
+    total += item.getPrice() * item.getQuantity();
+}
+%>
 
 <!DOCTYPE html>
 <html>
 
 <head>
 
+<meta charset="UTF-8">
+
 <title>Checkout - EMart</title>
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet"
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=7">
 
 </head>
 
-
 <body>
-
 
 <jsp:include page="navbar.jsp" />
 
-
-<%
-
-User user = (User)session.getAttribute("user");
-
-
-if(user == null){
-
-    response.sendRedirect("login.jsp");
-    return;
-
-}
-
-%>
-
-
-
 <div class="form-container">
 
+    <h2>Checkout</h2>
 
-<h1>
-Checkout
-</h1>
+    <p>
+        Customer:
+        <strong><%=user.getName()%></strong>
+    </p>
 
+    <p>
+        Email:
+        <strong><%=user.getEmail()%></strong>
+    </p>
 
-<h3>
-Customer:
-<%=user.getName()%>
-</h3>
+    <br>
 
+    <h3>
+        Order Total: Rs. <%=String.format("%.2f", total)%>
+    </h3>
 
-<p>
-Your order is ready.
-</p>
+    <br>
 
+    <h3>Select Payment Method</h3>
 
-<form action="OrderServlet" method="post">
+    <br>
 
+    <!-- Cash on Delivery -->
 
-<input type="hidden"
-       name="action"
-       value="placeOrder">
+    <form action="OrderServlet" method="post">
 
+        <input type="hidden"
+               name="paymentMethod"
+               value="Cash on Delivery">
 
+        <button type="submit">
+            Cash on Delivery
+        </button>
 
-<button type="submit">
+    </form>
 
-Place Order
+    <br>
 
-</button>
+    <!-- eSewa Payment -->
 
+    <form action="esewaPay.jsp" method="get">
 
-</form>
+        <button type="submit">
+            Pay with eSewa
+        </button>
 
+    </form>
+
+    <br>
+
+    <a href="CartServlet">
+        Back to Cart
+    </a>
 
 </div>
-
 
 </body>
 
 </html>
+

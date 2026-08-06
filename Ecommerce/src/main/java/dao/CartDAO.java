@@ -1,3 +1,4 @@
+
 package dao;
 
 import java.sql.Connection;
@@ -12,74 +13,79 @@ public class CartDAO {
 
 
     // Add product to cart
-	public boolean addToCart(String email, int productId) {
+    public boolean addToCart(String email, int productId) {
 
-	    try {
+        try {
 
-	        Connection con = DBConnection.getConnection();
-
-
-	        // Check if product already exists in cart
-	        String check =
-	        "SELECT * FROM cart WHERE user_email=? AND product_id=?";
+            Connection con = DBConnection.getConnection();
 
 
-	        PreparedStatement ps1 = con.prepareStatement(check);
-
-	        ps1.setString(1, email);
-	        ps1.setInt(2, productId);
-
-
-	        ResultSet rs = ps1.executeQuery();
+            // Check whether product already exists
+            String checkSql =
+                    "SELECT id FROM cart "
+                    + "WHERE user_email=? AND product_id=?";
 
 
-
-	        if(rs.next()) {
-
-	            // Increase quantity
-	            String update =
-	            "UPDATE cart SET quantity = quantity + 1 WHERE user_email=? AND product_id=?";
+            PreparedStatement checkPs =
+                    con.prepareStatement(checkSql);
 
 
-	            PreparedStatement ps2 = con.prepareStatement(update);
-
-	            ps2.setString(1, email);
-	            ps2.setInt(2, productId);
+            checkPs.setString(1, email);
+            checkPs.setInt(2, productId);
 
 
-	            return ps2.executeUpdate() > 0;
+            ResultSet rs = checkPs.executeQuery();
 
 
-	        } else {
+            if (rs.next()) {
+
+                // Increase quantity
+                String updateSql =
+                        "UPDATE cart "
+                        + "SET quantity=quantity+1 "
+                        + "WHERE user_email=? AND product_id=?";
 
 
-	            // Add new product
-	            String insert =
-	            "INSERT INTO cart(user_email,product_id,quantity) VALUES(?,?,?)";
+                PreparedStatement updatePs =
+                        con.prepareStatement(updateSql);
 
 
-	            PreparedStatement ps3 = con.prepareStatement(insert);
+                updatePs.setString(1, email);
+                updatePs.setInt(2, productId);
 
 
-	            ps3.setString(1, email);
-	            ps3.setInt(2, productId);
-	            ps3.setInt(3, 1);
+                return updatePs.executeUpdate() > 0;
+
+            } else {
+
+                // Insert new cart item
+                String insertSql =
+                        "INSERT INTO cart"
+                        + "(user_email,product_id,quantity) "
+                        + "VALUES(?,?,?)";
 
 
-	            return ps3.executeUpdate() > 0;
-
-	        }
-
-
-	    } catch(Exception e) {
-
-	        e.printStackTrace();
-
-	    }
+                PreparedStatement insertPs =
+                        con.prepareStatement(insertSql);
 
 
-	    return false;
-	}
+                insertPs.setString(1, email);
+                insertPs.setInt(2, productId);
+                insertPs.setInt(3, 1);
+
+
+                return insertPs.executeUpdate() > 0;
+            }
+
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+
+        return false;
+    }
 
 
 
@@ -88,22 +94,25 @@ public class CartDAO {
 
         ArrayList<CartItem> list = new ArrayList<>();
 
+
         try {
 
             Connection con = DBConnection.getConnection();
 
 
             String sql =
-            "SELECT cart.id, cart.product_id, products.name, products.price, products.image, cart.quantity "
-            +
-            "FROM cart INNER JOIN products "
-            +
-            "ON cart.product_id = products.id "
-            +
-            "WHERE cart.user_email=?";
+                    "SELECT cart.id, cart.product_id, "
+                    + "products.name, products.price, "
+                    + "products.image, cart.quantity "
+                    + "FROM cart "
+                    + "INNER JOIN products "
+                    + "ON cart.product_id=products.id "
+                    + "WHERE cart.user_email=?";
 
 
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps =
+                    con.prepareStatement(sql);
+
 
             ps.setString(1, email);
 
@@ -111,76 +120,114 @@ public class CartDAO {
             ResultSet rs = ps.executeQuery();
 
 
-            while(rs.next()) {
-
+            while (rs.next()) {
 
                 CartItem item = new CartItem();
 
 
                 item.setId(rs.getInt("id"));
 
-                item.setProductId(rs.getInt("product_id"));
+                item.setProductId(
+                        rs.getInt("product_id")
+                );
 
-                item.setProductName(rs.getString("name"));
+                item.setProductName(
+                        rs.getString("name")
+                );
 
-                item.setPrice(rs.getDouble("price"));
+                item.setPrice(
+                        rs.getDouble("price")
+                );
 
-                item.setImage(rs.getString("image"));
+                item.setImage(
+                        rs.getString("image")
+                );
 
-                item.setQuantity(rs.getInt("quantity"));
+                item.setQuantity(
+                        rs.getInt("quantity")
+                );
 
 
                 list.add(item);
-
             }
 
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
-
         }
 
 
         return list;
-
     }
 
 
 
-
-    // Remove item
+    // Remove one cart item
     public boolean removeItem(int id) {
-
 
         try {
 
             Connection con = DBConnection.getConnection();
 
 
+            String sql =
+                    "DELETE FROM cart WHERE id=?";
+
+
             PreparedStatement ps =
-            con.prepareStatement("DELETE FROM cart WHERE id=?");
+                    con.prepareStatement(sql);
 
 
-            ps.setInt(1,id);
+            ps.setInt(1, id);
 
 
-            int result = ps.executeUpdate();
+            return ps.executeUpdate() > 0;
 
 
-            return result > 0;
-
-
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
-
         }
 
 
         return false;
-
     }
 
 
+
+    // Clear all cart items after successful order
+    public boolean clearCart(String email) {
+
+        try {
+
+            Connection con = DBConnection.getConnection();
+
+
+            String sql =
+                    "DELETE FROM cart WHERE user_email=?";
+
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql);
+
+
+            ps.setString(1, email);
+
+
+            ps.executeUpdate();
+
+            return true;
+
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+
+        return false;
+    }
+
 }
+

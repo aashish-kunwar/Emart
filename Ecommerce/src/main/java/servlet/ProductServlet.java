@@ -15,24 +15,47 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/ProductServlet")
 public class ProductServlet extends HttpServlet {
 
-    ProductDAO dao = new ProductDAO();
+    private static final long serialVersionUID = 1L;
 
-    protected void doGet(HttpServletRequest request,
+    private final ProductDAO dao = new ProductDAO();
+
+    @Override
+    protected void doGet(
+            HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
         String action = request.getParameter("action");
 
-        // Delete Product
-        if(action != null && action.equals("delete")) {
+        // Delete product
+        if ("delete".equals(action)) {
 
-            int id = Integer.parseInt(request.getParameter("id"));
+            String idValue = request.getParameter("id");
 
-            dao.deleteProduct(id);
+            try {
+                int id = Integer.parseInt(idValue);
 
-            request.getSession().setAttribute(
-                    "message",
-                    "Product Deleted Successfully");
+                boolean deleted = dao.deleteProduct(id);
+
+                if (deleted) {
+                    request.getSession().setAttribute(
+                            "message",
+                            "Product deleted successfully"
+                    );
+                } else {
+                    request.getSession().setAttribute(
+                            "message",
+                            "Product could not be deleted"
+                    );
+                }
+
+            } catch (Exception e) {
+
+                request.getSession().setAttribute(
+                        "message",
+                        "Invalid product ID"
+                );
+            }
 
             response.sendRedirect("ProductServlet");
             return;
@@ -40,67 +63,107 @@ public class ProductServlet extends HttpServlet {
 
         ArrayList<Product> products;
 
-        // Search Product
-        if(action != null && action.equals("search")) {
+        // Search products
+        if ("search".equals(action)) {
 
             String keyword = request.getParameter("keyword");
 
-            products = dao.searchProducts(keyword);
+            if (keyword == null || keyword.trim().isEmpty()) {
+                products = dao.getAllProducts();
+            } else {
+                products = dao.searchProducts(keyword.trim());
+            }
 
-        } else {
+        }
+
+        // Filter products by category
+        else if ("category".equals(action)) {
+
+            String category = request.getParameter("category");
+
+            if (category == null
+                    || category.trim().isEmpty()
+                    || "All".equals(category)) {
+
+                products = dao.getAllProducts();
+
+            } else {
+
+                products = dao.getProductsByCategory(
+                        category.trim()
+                );
+            }
+
+        }
+
+        // Show all products
+        else {
 
             products = dao.getAllProducts();
-
         }
 
         request.setAttribute("products", products);
 
         request.getRequestDispatcher("products.jsp")
                .forward(request, response);
-
     }
 
-    protected void doPost(HttpServletRequest request,
+    @Override
+    protected void doPost(
+            HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
         String action = request.getParameter("action");
 
-        // Add Product
-        if(action != null && action.equals("add")) {
+        if (!"add".equals(action)) {
+            response.sendRedirect("ProductServlet");
+            return;
+        }
 
-            Product p = new Product();
+        String name = request.getParameter("name");
+        String description = request.getParameter("description");
+        String priceValue = request.getParameter("price");
+        String image = request.getParameter("image");
+        String category = request.getParameter("category");
 
-            p.setName(request.getParameter("name"));
+        try {
 
-            p.setDescription(request.getParameter("description"));
+            Product product = new Product();
 
-            p.setPrice(
-                    Double.parseDouble(request.getParameter("price"))
-            );
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(Double.parseDouble(priceValue));
+            product.setImage(image);
+            product.setCategory(category);
 
-            p.setImage(request.getParameter("image"));
+            boolean added = dao.addProduct(product);
 
-            boolean result = dao.addProduct(p);
-
-            if(result) {
+            if (added) {
 
                 request.getSession().setAttribute(
                         "message",
-                        "Product Added Successfully");
+                        "Product added successfully"
+                );
 
             } else {
 
                 request.getSession().setAttribute(
                         "message",
-                        "Product Add Failed");
-
+                        "Product could not be added"
+                );
             }
 
-            response.sendRedirect("ProductServlet");
+        } catch (Exception e) {
 
+            e.printStackTrace();
+
+            request.getSession().setAttribute(
+                    "message",
+                    "Invalid product information"
+            );
         }
 
+        response.sendRedirect("ProductServlet");
     }
-
 }
