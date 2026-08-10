@@ -1,4 +1,3 @@
-
 package servlet;
 
 import java.io.IOException;
@@ -16,37 +15,191 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    private static final long serialVersionUID = 1L;
+
+
+    @Override
+    protected void doPost(
+            HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
 
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-        String role = request.getParameter("role");
 
-        UserDAO dao = new UserDAO();
+        // =========================
+        // GET LOGIN DATA
+        // =========================
 
-        User user = dao.loginUser(email, password);
+        String email =
+                request.getParameter("email");
 
-        if(user != null && user.getRole().equals(role)){
+        String password =
+                request.getParameter("password");
 
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
+        String selectedRole =
+                request.getParameter("role");
 
-            if(role.equals("admin")){
-                response.sendRedirect("home.jsp");
-            }
-            else{
-                response.sendRedirect("ProductServlet");
-            }
 
+        // =========================
+        // VALIDATION
+        // =========================
+
+        if(email == null ||
+           password == null ||
+           email.trim().isEmpty() ||
+           password.trim().isEmpty()) {
+
+            request.setAttribute(
+                    "error",
+                    "Please enter your email and password."
+            );
+
+            request.getRequestDispatcher(
+                    "/login.jsp"
+            ).forward(
+                    request,
+                    response
+            );
+
+            return;
         }
-        else{
 
-            response.getWriter().println("Invalid Login");
 
+        email =
+                email.trim().toLowerCase();
+
+
+        // =========================
+        // LOGIN FROM DATABASE
+        // =========================
+
+        UserDAO dao =
+                new UserDAO();
+
+
+        User user =
+                dao.loginUser(
+                        email,
+                        password
+                );
+
+
+        // =========================
+        // WRONG EMAIL / PASSWORD
+        // =========================
+
+        if(user == null) {
+
+            request.setAttribute(
+                    "error",
+                    "Incorrect email or password."
+            );
+
+            request.getRequestDispatcher(
+                    "/login.jsp"
+            ).forward(
+                    request,
+                    response
+            );
+
+            return;
         }
 
+
+        // =========================
+        // WRONG LOGIN SECTION
+        // =========================
+
+        if(selectedRole == null ||
+           !selectedRole.equalsIgnoreCase(
+                   user.getRole())) {
+
+            request.setAttribute(
+                    "error",
+                    "Please use the correct login section."
+            );
+
+            request.getRequestDispatcher(
+                    "/login.jsp"
+            ).forward(
+                    request,
+                    response
+            );
+
+            return;
+        }
+
+
+        // =========================
+        // REMOVE OLD SESSION
+        // =========================
+
+        HttpSession oldSession =
+                request.getSession(false);
+
+
+        if(oldSession != null) {
+
+            oldSession.invalidate();
+        }
+
+
+        // =========================
+        // CREATE NEW SESSION
+        // =========================
+
+        HttpSession newSession =
+                request.getSession(true);
+
+
+        newSession.setAttribute(
+                "user",
+                user
+        );
+
+
+        // =========================
+        // ADMIN LOGIN
+        // =========================
+
+        if("admin".equalsIgnoreCase(
+                user.getRole())) {
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/adminDashboard.jsp"
+            );
+
+            return;
+        }
+
+
+        // =========================
+        // CUSTOMER LOGIN
+        // GO TO CUSTOMER HOME
+        // =========================
+
+        if("customer".equalsIgnoreCase(
+                user.getRole())) {
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/home.jsp"
+            );
+
+            return;
+        }
+
+
+        // =========================
+        // UNKNOWN ROLE
+        // =========================
+
+        newSession.invalidate();
+
+
+        response.sendRedirect(
+                request.getContextPath()
+                + "/login.jsp"
+        );
     }
-
 }
-

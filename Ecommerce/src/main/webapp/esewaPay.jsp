@@ -7,72 +7,243 @@
 <%@ page import="java.util.Locale" %>
 
 <%@ page import="dao.CartDAO" %>
+<%@ page import="dao.ProductDAO" %>
 
 <%@ page import="model.User" %>
 <%@ page import="model.CartItem" %>
+<%@ page import="model.Product" %>
 
 <%@ page import="helper.EsewaUtil" %>
 
-
 <%
-User user = (User) session.getAttribute("user");
+User user =
+        (User) session.getAttribute("user");
 
-if (user == null) {
+if(user == null){
 
     response.sendRedirect("login.jsp");
     return;
 }
 
+if(!"customer".equalsIgnoreCase(user.getRole())){
 
-if (!"customer".equals(user.getRole())) {
-
-    response.sendRedirect("home.jsp");
+    response.sendRedirect("index.jsp");
     return;
 }
 
 
-CartDAO cartDAO = new CartDAO();
+/* =========================
+   CHECKOUT TYPE
+========================= */
 
-ArrayList<CartItem> cart =
-        cartDAO.getCart(user.getEmail());
+String buyNow =
+        request.getParameter("buyNow");
+
+String productIdValue =
+        request.getParameter("productId");
+
+String quantityValue =
+        request.getParameter("quantity");
 
 
-if (cart == null || cart.isEmpty()) {
+boolean isBuyNow =
+        "true".equalsIgnoreCase(buyNow)
+        && productIdValue != null;
 
-    response.sendRedirect("CartServlet");
-    return;
+
+int buyNowQuantity = 1;
+
+
+if(quantityValue != null){
+
+    try{
+
+        buyNowQuantity =
+                Integer.parseInt(
+                        quantityValue
+                );
+
+    }catch(Exception e){
+
+        buyNowQuantity = 1;
+    }
+}
+
+
+if(buyNowQuantity < 1){
+
+    buyNowQuantity = 1;
 }
 
 
 double total = 0.0;
 
-for (CartItem item : cart) {
+Product buyNowProduct = null;
 
-    total += item.getPrice() * item.getQuantity();
+ArrayList<CartItem> cart = null;
+
+
+/* =========================
+   BUY NOW
+========================= */
+
+if(isBuyNow){
+
+    try{
+
+        int productId =
+                Integer.parseInt(
+                        productIdValue
+                );
+
+
+        ProductDAO productDAO =
+                new ProductDAO();
+
+
+        buyNowProduct =
+                productDAO.getProductById(
+                        productId
+                );
+
+
+        if(buyNowProduct == null){
+
+            response.sendRedirect(
+                    "ProductServlet"
+            );
+
+            return;
+        }
+
+
+        total =
+                buyNowProduct.getPrice()
+                * buyNowQuantity;
+
+
+        // Save Buy Now information
+        // for EsewaSuccessServlet
+
+        session.setAttribute(
+                "esewaBuyNow",
+                true
+        );
+
+
+        session.setAttribute(
+                "esewaProductId",
+                productId
+        );
+
+
+        session.setAttribute(
+                "esewaQuantity",
+                buyNowQuantity
+        );
+
+
+    }catch(Exception e){
+
+        e.printStackTrace();
+
+        response.sendRedirect(
+                "ProductServlet"
+        );
+
+        return;
+    }
+
 }
 
 
-/*
- * eSewa requires amounts without comma formatting.
- * Example: 1500.00
- */
+/* =========================
+   CART CHECKOUT
+========================= */
+
+else{
+
+    CartDAO cartDAO =
+            new CartDAO();
+
+
+    cart =
+            cartDAO.getCart(
+                    user.getEmail()
+            );
+
+
+    if(cart == null ||
+       cart.isEmpty()){
+
+        response.sendRedirect(
+                "CartServlet"
+        );
+
+        return;
+    }
+
+
+    for(CartItem item : cart){
+
+        total +=
+                item.getPrice()
+                * item.getQuantity();
+    }
+
+
+    session.setAttribute(
+            "esewaBuyNow",
+            false
+    );
+
+
+    session.removeAttribute(
+            "esewaProductId"
+    );
+
+
+    session.removeAttribute(
+            "esewaQuantity"
+    );
+}
+
+
+/* =========================
+   ESEWA VALUES
+========================= */
+
 String amount =
-        String.format(Locale.US, "%.2f", total);
-
-String taxAmount = "0";
-String serviceCharge = "0";
-String deliveryCharge = "0";
-
-String totalAmount = amount;
+        String.format(
+                Locale.US,
+                "%.2f",
+                total
+        );
 
 
-/*
- * A unique transaction ID is required for every request.
- * UUID contains only letters, numbers and hyphens.
- */
+String taxAmount =
+        "0";
+
+
+String serviceCharge =
+        "0";
+
+
+String deliveryCharge =
+        "0";
+
+
+String totalAmount =
+        amount;
+
+
+/* Unique transaction UUID */
+
 String transactionUuid =
         UUID.randomUUID().toString();
 
+
+/* Generate signature */
 
 String signature =
         EsewaUtil.generateSignature(
@@ -81,14 +252,15 @@ String signature =
         );
 
 
-/*
- * Save transaction information temporarily.
- * SuccessServlet will use these values for verification.
- */
+/* =========================
+   SAVE PAYMENT DATA
+========================= */
+
 session.setAttribute(
         "esewaTransactionUuid",
         transactionUuid
 );
+
 
 session.setAttribute(
         "esewaTotalAmount",
@@ -96,9 +268,10 @@ session.setAttribute(
 );
 
 
-/*
- * Create absolute callback URLs.
- */
+/* =========================
+   CALLBACK URLs
+========================= */
+
 String baseUrl =
         request.getScheme()
         + "://"
@@ -109,24 +282,29 @@ String baseUrl =
 
 
 String successUrl =
-        baseUrl + "/EsewaSuccessServlet";
+        baseUrl
+        + "/EsewaSuccessServlet";
+
 
 String failureUrl =
-        baseUrl + "/EsewaFailureServlet";
+        baseUrl
+        + "/EsewaFailureServlet";
 %>
 
 
 <!DOCTYPE html>
+
 <html>
 
 <head>
 
 <meta charset="UTF-8">
 
-<title>Pay with eSewa - EMart</title>
+<title>eSewa Payment - EMart</title>
 
 <link rel="stylesheet"
-      href="<%=request.getContextPath()%>/assets/css/style.css?v=7">
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=93">
+
 </head>
 
 
@@ -139,23 +317,141 @@ String failureUrl =
 <div class="form-container">
 
 
-    <h2>Pay with eSewa</h2>
+    <h2>
+        Pay with eSewa
+    </h2>
 
 
     <p>
         Customer:
-        <strong><%=user.getName()%></strong>
+        <strong>
+            <%=user.getName()%>
+        </strong>
     </p>
 
 
     <p>
-        Total Amount:
-        <strong>Rs. <%=totalAmount%></strong>
+        Email:
+        <strong>
+            <%=user.getEmail()%>
+        </strong>
     </p>
 
 
-    <br>
+    <hr style="margin:20px 0;">
 
+
+    <!-- =========================
+         BUY NOW DETAILS
+    ========================= -->
+
+    <%
+    if(isBuyNow){
+    %>
+
+        <h3>
+            Buy Now
+        </h3>
+
+
+        <p>
+            Product:
+            <strong>
+                <%=buyNowProduct.getName()%>
+            </strong>
+        </p>
+
+
+        <p>
+            Price:
+            <strong>
+                Rs. <%=buyNowProduct.getPrice()%>
+            </strong>
+        </p>
+
+
+        <p>
+            Quantity:
+            <strong>
+                <%=buyNowQuantity%>
+            </strong>
+        </p>
+
+
+        <p>
+            Subtotal:
+            <strong>
+                Rs. <%=buyNowProduct.getPrice() * buyNowQuantity%>
+            </strong>
+        </p>
+
+    <%
+    }
+    %>
+
+
+    <!-- =========================
+         CART DETAILS
+    ========================= -->
+
+    <%
+    if(!isBuyNow){
+    %>
+
+        <h3>
+            Cart Items
+        </h3>
+
+
+        <%
+        for(CartItem item : cart){
+
+            double itemSubtotal =
+                    item.getPrice()
+                    * item.getQuantity();
+        %>
+
+
+            <div class="checkout-item">
+
+                <p>
+
+                    <strong>
+                        <%=item.getProductName()%>
+                    </strong>
+
+                    × <%=item.getQuantity()%>
+
+                </p>
+
+
+                <p>
+                    Rs. <%=itemSubtotal%>
+                </p>
+
+            </div>
+
+
+        <%
+        }
+        %>
+
+    <%
+    }
+    %>
+
+
+    <hr style="margin:20px 0;">
+
+
+    <h2>
+        Total: Rs. <%=totalAmount%>
+    </h2>
+
+
+    <!-- =========================
+         ESEWA FORM
+    ========================= -->
 
     <form action="<%=EsewaUtil.PAYMENT_URL%>"
           method="post">
@@ -216,8 +512,11 @@ String failureUrl =
                value="<%=signature%>">
 
 
-        <button type="submit">
+        <button type="submit"
+                class="payment-btn">
+
             Continue to eSewa
+
         </button>
 
 
@@ -227,9 +526,19 @@ String failureUrl =
     <br>
 
 
-    <a href="CartServlet">
-        Back to Cart
-    </a>
+    <% if(isBuyNow){ %>
+
+        <a href="ProductServlet">
+            Back to Products
+        </a>
+
+    <% } else { %>
+
+        <a href="CartServlet">
+            Back to Cart
+        </a>
+
+    <% } %>
 
 
 </div>

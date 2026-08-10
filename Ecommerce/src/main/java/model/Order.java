@@ -7,7 +7,10 @@ public class Order {
     private double totalAmount;
     private String orderDate;
     private String status;
+    private String paymentMethod;
 
+    public Order() {
+    }
 
     public int getId() {
         return id;
@@ -17,7 +20,6 @@ public class Order {
         this.id = id;
     }
 
-
     public String getUserEmail() {
         return userEmail;
     }
@@ -25,7 +27,6 @@ public class Order {
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
     }
-
 
     public double getTotalAmount() {
         return totalAmount;
@@ -35,7 +36,6 @@ public class Order {
         this.totalAmount = totalAmount;
     }
 
-
     public String getOrderDate() {
         return orderDate;
     }
@@ -43,7 +43,6 @@ public class Order {
     public void setOrderDate(String orderDate) {
         this.orderDate = orderDate;
     }
-
 
     public String getStatus() {
         return status;
@@ -53,4 +52,11 @@ public class Order {
         this.status = status;
     }
 
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
 }

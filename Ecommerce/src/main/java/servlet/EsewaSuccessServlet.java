@@ -16,8 +16,12 @@ import javax.crypto.spec.SecretKeySpec;
 
 import dao.CartDAO;
 import dao.OrderDAO;
+import dao.ProductDAO;
+
+import helper.EmailUtil;
 
 import model.CartItem;
+import model.Product;
 import model.User;
 
 import jakarta.servlet.ServletException;
@@ -32,7 +36,6 @@ public class EsewaSuccessServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    // eSewa test credentials
     private static final String SECRET_KEY =
             "8gBm/:&EnhH.1/q";
 
@@ -45,6 +48,10 @@ public class EsewaSuccessServlet extends HttpServlet {
     private final OrderDAO orderDAO =
             new OrderDAO();
 
+    private final ProductDAO productDAO =
+            new ProductDAO();
+
+
     @Override
     protected void doGet(
             HttpServletRequest request,
@@ -54,26 +61,69 @@ public class EsewaSuccessServlet extends HttpServlet {
         HttpSession session =
                 request.getSession(false);
 
-        if (session == null) {
+
+        if(session == null){
 
             response.sendRedirect("login.jsp");
             return;
         }
+
 
         User user =
                 (User) session.getAttribute("user");
 
-        if (user == null) {
+
+        if(user == null){
 
             response.sendRedirect("login.jsp");
             return;
         }
 
+
+        if(!"customer".equalsIgnoreCase(
+                user.getRole())){
+
+            response.sendRedirect("home.jsp");
+            return;
+        }
+
+
+        // =========================
+        // EXACT LOGGED-IN CUSTOMER
+        // =========================
+
+        String customerEmail =
+                user.getEmail();
+
+        String customerName =
+                user.getName();
+
+
+        System.out.println(
+                "========== ESEWA CUSTOMER =========="
+        );
+
+        System.out.println(
+                "Customer name = "
+                + customerName
+        );
+
+        System.out.println(
+                "Customer email = "
+                + customerEmail
+        );
+
+        System.out.println(
+                "===================================="
+        );
+
+
         String encodedData =
                 request.getParameter("data");
 
-        if (encodedData == null
-                || encodedData.trim().isEmpty()) {
+
+        if(encodedData == null ||
+           encodedData.trim().isEmpty()){
 
             response.sendRedirect(
                     "EsewaFailureServlet"
@@ -82,10 +132,19 @@ public class EsewaSuccessServlet extends HttpServlet {
             return;
         }
 
-        try {
+
+        try{
+
+            // =========================
+            // DECODE ESEWA RESPONSE
+            // =========================
 
             encodedData =
-                    encodedData.replace(" ", "+");
+                    encodedData.replace(
+                            " ",
+                            "+"
+                    );
+
 
             String decodedJson =
                     new String(
@@ -94,66 +153,86 @@ public class EsewaSuccessServlet extends HttpServlet {
                             StandardCharsets.UTF_8
                     );
 
-            Map<String, String> paymentData =
-                    parseJson(decodedJson);
+
+            Map<String,String> paymentData =
+                    parseJson(
+                            decodedJson
+                    );
+
 
             String status =
-                    paymentData.get("status");
+                    paymentData.get(
+                            "status"
+                    );
+
 
             String transactionUuid =
                     paymentData.get(
                             "transaction_uuid"
                     );
 
+
             String totalAmount =
                     paymentData.get(
                             "total_amount"
                     );
+
 
             String productCode =
                     paymentData.get(
                             "product_code"
                     );
 
+
             String signedFieldNames =
                     paymentData.get(
                             "signed_field_names"
                     );
+
 
             String receivedSignature =
                     paymentData.get(
                             "signature"
                     );
 
+
             String transactionCode =
                     paymentData.get(
                             "transaction_code"
                     );
+
+
+            // =========================
+            // EXPECTED SESSION VALUES
+            // =========================
 
             String expectedUuid =
                     (String) session.getAttribute(
                             "esewaTransactionUuid"
                     );
 
+
             String expectedAmount =
                     (String) session.getAttribute(
                             "esewaTotalAmount"
                     );
 
-            // Basic payment verification
-            if (!"COMPLETE".equals(status)
+
+            // =========================
+            // BASIC CHECK
+            // =========================
+
+            if(!"COMPLETE".equals(status)
                     || !PRODUCT_CODE.equals(productCode)
                     || expectedUuid == null
                     || expectedAmount == null
-                    || !expectedUuid.equals(
-                            transactionUuid
-                    )
+                    || !expectedUuid.equals(transactionUuid)
                     || !sameAmount(
                             expectedAmount,
                             totalAmount
                     )
                     || signedFieldNames == null
-                    || receivedSignature == null) {
+                    || receivedSignature == null){
 
                 response.sendRedirect(
                         "EsewaFailureServlet"
@@ -162,16 +241,23 @@ public class EsewaSuccessServlet extends HttpServlet {
                 return;
             }
 
+
+            // =========================
+            // VERIFY SIGNATURE
+            // =========================
+
             String signatureMessage =
                     createSignatureMessage(
                             signedFieldNames,
                             paymentData
                     );
 
+
             String generatedSignature =
                     generateSignature(
                             signatureMessage
                     );
+
 
             boolean validSignature =
                     MessageDigest.isEqual(
@@ -183,7 +269,8 @@ public class EsewaSuccessServlet extends HttpServlet {
                             )
                     );
 
-            if (!validSignature) {
+
+            if(!validSignature){
 
                 response.sendRedirect(
                         "EsewaFailureServlet"
@@ -192,17 +279,19 @@ public class EsewaSuccessServlet extends HttpServlet {
                 return;
             }
 
-            /*
-             * Prevent duplicate order creation
-             * when the customer refreshes the page.
-             */
+
+            // =========================
+            // DUPLICATE PROCESSING CHECK
+            // =========================
+
             String processedUuid =
                     (String) session.getAttribute(
                             "processedEsewaTransaction"
                     );
 
-            if (transactionUuid.equals(
-                    processedUuid)) {
+
+            if(transactionUuid.equals(
+                    processedUuid)){
 
                 response.sendRedirect(
                         "orderSuccess.jsp"
@@ -211,105 +300,307 @@ public class EsewaSuccessServlet extends HttpServlet {
                 return;
             }
 
-            ArrayList<CartItem> cart =
-                    cartDAO.getCart(
-                            user.getEmail()
+
+            Boolean buyNowValue =
+                    (Boolean) session.getAttribute(
+                            "esewaBuyNow"
                     );
 
-            if (cart == null || cart.isEmpty()) {
 
-                response.sendRedirect(
-                        "CartServlet"
-                );
+            boolean isBuyNow =
+                    buyNowValue != null
+                    && buyNowValue;
 
-                return;
-            }
 
-            double cartTotal = 0.0;
+            int orderId;
 
-            for (CartItem item : cart) {
+            double finalTotal;
 
-                cartTotal +=
-                        item.getPrice()
-                        * item.getQuantity();
-            }
 
-            // Verify cart total with paid amount
-            if (!sameAmount(
-                    String.valueOf(cartTotal),
-                    totalAmount)) {
+            // =================================================
+            // BUY NOW + ESEWA
+            // =================================================
 
-                response.sendRedirect(
-                        "EsewaFailureServlet"
-                );
+            if(isBuyNow){
 
-                return;
-            }
+                Integer productId =
+                        (Integer) session.getAttribute(
+                                "esewaProductId"
+                        );
 
-            // Create order
-            int orderId =
-                    orderDAO.createOrder(
-                            user.getEmail(),
-                            cartTotal
+
+                Integer quantity =
+                        (Integer) session.getAttribute(
+                                "esewaQuantity"
+                        );
+
+
+                if(productId == null){
+
+                    response.sendRedirect(
+                            "EsewaFailureServlet"
                     );
 
-            if (orderId <= 0) {
+                    return;
+                }
 
-                response.sendRedirect(
-                        "EsewaFailureServlet"
-                );
 
-                return;
-            }
+                if(quantity == null ||
+                   quantity < 1){
 
-            // Save order items
-            for (CartItem item : cart) {
+                    quantity = 1;
+                }
+
+
+                Product product =
+                        productDAO.getProductById(
+                                productId
+                        );
+
+
+                if(product == null){
+
+                    response.sendRedirect(
+                            "EsewaFailureServlet"
+                    );
+
+                    return;
+                }
+
+
+                finalTotal =
+                        product.getPrice()
+                        * quantity;
+
+
+                if(!sameAmount(
+                        String.valueOf(finalTotal),
+                        totalAmount)){
+
+                    response.sendRedirect(
+                            "EsewaFailureServlet"
+                    );
+
+                    return;
+                }
+
+
+                // CREATE ORDER FOR LOGGED-IN CUSTOMER
+
+                orderId =
+                        orderDAO.createOrder(
+                                customerEmail,
+                                finalTotal,
+                                "eSewa"
+                        );
+
+
+                if(orderId <= 0){
+
+                    response.sendRedirect(
+                            "EsewaFailureServlet"
+                    );
+
+                    return;
+                }
+
+
+                // SAVE EXACT PRODUCT
 
                 orderDAO.addOrderItem(
                         orderId,
-                        item.getProductId(),
-                        item.getQuantity()
+                        productId,
+                        quantity
+                );
+
+            }
+
+
+            // =================================================
+            // CART CHECKOUT + ESEWA
+            // =================================================
+
+            else{
+
+                ArrayList<CartItem> cart =
+                        cartDAO.getCart(
+                                customerEmail
+                        );
+
+
+                if(cart == null ||
+                   cart.isEmpty()){
+
+                    response.sendRedirect(
+                            "CartServlet"
+                    );
+
+                    return;
+                }
+
+
+                finalTotal = 0.0;
+
+
+                for(CartItem item : cart){
+
+                    finalTotal +=
+                            item.getPrice()
+                            * item.getQuantity();
+                }
+
+
+                if(!sameAmount(
+                        String.valueOf(finalTotal),
+                        totalAmount)){
+
+                    response.sendRedirect(
+                            "EsewaFailureServlet"
+                    );
+
+                    return;
+                }
+
+
+                // CREATE ORDER FOR LOGGED-IN CUSTOMER
+
+                orderId =
+                        orderDAO.createOrder(
+                                customerEmail,
+                                finalTotal,
+                                "eSewa"
+                        );
+
+
+                if(orderId <= 0){
+
+                    response.sendRedirect(
+                            "EsewaFailureServlet"
+                    );
+
+                    return;
+                }
+
+
+                // SAVE EXACT CART PRODUCTS
+
+                for(CartItem item : cart){
+
+                    orderDAO.addOrderItem(
+                            orderId,
+                            item.getProductId(),
+                            item.getQuantity()
+                    );
+                }
+
+
+                // CLEAR ONLY THIS CUSTOMER'S CART
+
+                cartDAO.clearCart(
+                        customerEmail
                 );
             }
 
-            // Clear cart only after successful order
-            cartDAO.clearCart(
-                    user.getEmail()
+
+            // =========================
+            // SEND EMAIL TO CUSTOMER
+            // =========================
+
+            System.out.println(
+                    "ESEWA EMAIL RECEIVER = "
+                    + customerEmail
             );
+
+
+            boolean emailSent =
+                    EmailUtil.sendOrderConfirmation(
+                            customerEmail,
+                            customerName,
+                            orderId,
+                            finalTotal,
+                            "eSewa"
+                    );
+
+
+            System.out.println(
+                    "ESEWA EMAIL RESULT = "
+                    + emailSent
+            );
+
+
+            // =========================
+            // SAVE SUCCESS DATA
+            // =========================
 
             session.setAttribute(
                     "processedEsewaTransaction",
                     transactionUuid
             );
 
+
             session.setAttribute(
                     "esewaTransactionCode",
                     transactionCode
             );
+
 
             session.setAttribute(
                     "paymentMethod",
                     "eSewa"
             );
 
+
             session.setAttribute(
                     "placedOrderId",
                     orderId
             );
 
+
+            session.setAttribute(
+                    "orderMessage",
+                    "Order placed successfully!"
+            );
+
+
+            // =========================
+            // REMOVE TEMP ESEWA DATA
+            // =========================
+
             session.removeAttribute(
                     "esewaTransactionUuid"
             );
+
 
             session.removeAttribute(
                     "esewaTotalAmount"
             );
 
+
+            session.removeAttribute(
+                    "esewaBuyNow"
+            );
+
+
+            session.removeAttribute(
+                    "esewaProductId"
+            );
+
+
+            session.removeAttribute(
+                    "esewaQuantity"
+            );
+
+
+            // =========================
+            // SUCCESS
+            // =========================
+
             response.sendRedirect(
                     "orderSuccess.jsp"
             );
 
-        } catch (Exception e) {
+
+        }catch(Exception e){
 
             e.printStackTrace();
 
@@ -319,36 +610,51 @@ public class EsewaSuccessServlet extends HttpServlet {
         }
     }
 
+
     @Override
     protected void doPost(
             HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        doGet(request, response);
+        doGet(
+                request,
+                response
+        );
     }
+
+
+    // =========================
+    // SIGNATURE MESSAGE
+    // =========================
 
     private String createSignatureMessage(
             String signedFieldNames,
-            Map<String, String> paymentData) {
+            Map<String,String> paymentData){
 
         StringBuilder message =
                 new StringBuilder();
 
+
         String[] fields =
                 signedFieldNames.split(",");
 
-        for (int i = 0;
-                i < fields.length;
-                i++) {
+
+        for(int i = 0;
+            i < fields.length;
+            i++){
 
             String field =
                     fields[i].trim();
 
-            String value =
-                    paymentData.get(field);
 
-            if (value == null) {
+            String value =
+                    paymentData.get(
+                            field
+                    );
+
+
+            if(value == null){
 
                 throw new IllegalArgumentException(
                         "Missing signed field: "
@@ -356,27 +662,36 @@ public class EsewaSuccessServlet extends HttpServlet {
                 );
             }
 
-            if (i > 0) {
+
+            if(i > 0){
 
                 message.append(",");
             }
+
 
             message.append(field)
                    .append("=")
                    .append(value);
         }
 
+
         return message.toString();
     }
 
+
+    // =========================
+    // GENERATE SIGNATURE
+    // =========================
+
     private String generateSignature(
             String message)
-            throws Exception {
+            throws Exception{
 
         Mac mac =
                 Mac.getInstance(
                         "HmacSHA256"
                 );
+
 
         SecretKeySpec secretKey =
                 new SecretKeySpec(
@@ -386,7 +701,11 @@ public class EsewaSuccessServlet extends HttpServlet {
                         "HmacSHA256"
                 );
 
-        mac.init(secretKey);
+
+        mac.init(
+                secretKey
+        );
+
 
         byte[] hash =
                 mac.doFinal(
@@ -395,66 +714,94 @@ public class EsewaSuccessServlet extends HttpServlet {
                         )
                 );
 
+
         return Base64.getEncoder()
-                     .encodeToString(hash);
+                     .encodeToString(
+                             hash
+                     );
     }
 
+
+    // =========================
+    // COMPARE AMOUNTS
+    // =========================
+
     private boolean sameAmount(
-            String firstAmount,
-            String secondAmount) {
+            String first,
+            String second){
 
-        try {
+        try{
 
-            BigDecimal first =
+            BigDecimal amount1 =
                     new BigDecimal(
-                            firstAmount
-                                    .replace(",", "")
-                                    .trim()
+                            first
+                            .replace(",", "")
+                            .trim()
                     );
 
-            BigDecimal second =
+
+            BigDecimal amount2 =
                     new BigDecimal(
-                            secondAmount
-                                    .replace(",", "")
-                                    .trim()
+                            second
+                            .replace(",", "")
+                            .trim()
                     );
 
-            return first.compareTo(second) == 0;
 
-        } catch (Exception e) {
+            return amount1.compareTo(
+                    amount2
+            ) == 0;
+
+
+        }catch(Exception e){
 
             return false;
         }
     }
 
-    private Map<String, String> parseJson(
-            String json) {
 
-        Map<String, String> values =
+    // =========================
+    // SIMPLE JSON PARSER
+    // =========================
+
+    private Map<String,String> parseJson(
+            String json){
+
+        Map<String,String> values =
                 new HashMap<>();
+
 
         Pattern pattern =
                 Pattern.compile(
                         "\"([^\"]+)\"\\s*:\\s*"
-                        + "(?:\"([^\"]*)\""
-                        + "|([^,}\\s]+))"
+                        + "(?:\"([^\"]*)\"|([^,}\\s]+))"
                 );
 
-        Matcher matcher =
-                pattern.matcher(json);
 
-        while (matcher.find()) {
+        Matcher matcher =
+                pattern.matcher(
+                        json
+                );
+
+
+        while(matcher.find()){
 
             String key =
                     matcher.group(1);
+
 
             String value =
                     matcher.group(2) != null
                     ? matcher.group(2)
                     : matcher.group(3);
 
-            values.put(key, value);
+
+            values.put(
+                    key,
+                    value
+            );
         }
+
 
         return values;
     }

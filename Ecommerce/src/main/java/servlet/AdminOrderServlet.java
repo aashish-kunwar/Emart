@@ -14,75 +14,224 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-
 @WebServlet("/AdminOrderServlet")
 public class AdminOrderServlet extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
 
-    OrderDAO dao = new OrderDAO();
+    private final OrderDAO dao =
+            new OrderDAO();
 
 
+    // =========================
+    // SHOW ALL ORDERS
+    // =========================
 
-    protected void doGet(HttpServletRequest request,
+    @Override
+    protected void doGet(
+            HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
 
-        HttpSession session = request.getSession();
+        HttpSession session =
+                request.getSession(false);
 
 
-        User user = (User) session.getAttribute("user");
+        // =========================
+        // ADMIN LOGIN CHECK
+        // =========================
 
+        if(session == null) {
 
-        // Check admin
-        if(user == null || !user.getRole().equals("admin")) {
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/login.jsp"
+            );
 
-            response.sendRedirect("login.jsp");
             return;
-
         }
 
 
-
-        String action = request.getParameter("action");
-
-
-
-        if(action != null && action.equals("update")) {
+        User user =
+                (User) session.getAttribute(
+                        "user"
+                );
 
 
-            int id =
-            Integer.parseInt(request.getParameter("id"));
+        if(user == null ||
+           !"admin".equalsIgnoreCase(
+                   user.getRole())) {
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/login.jsp"
+            );
+
+            return;
+        }
+
+
+        // =========================
+        // CHECK ACTION
+        // =========================
+
+        String action =
+                request.getParameter(
+                        "action"
+                );
+
+
+        // =========================
+        // UPDATE STATUS
+        // =========================
+
+        if("update".equalsIgnoreCase(action)) {
+
+            String idValue =
+                    request.getParameter(
+                            "id"
+                    );
 
 
             String status =
-            request.getParameter("status");
+                    request.getParameter(
+                            "status"
+                    );
 
 
-            dao.updateStatus(id, status);
+            if(idValue == null ||
+               status == null ||
+               idValue.trim().isEmpty() ||
+               status.trim().isEmpty()) {
+
+                session.setAttribute(
+                        "errorMessage",
+                        "Invalid order information."
+                );
 
 
-            response.sendRedirect("AdminOrderServlet");
+                response.sendRedirect(
+                        request.getContextPath()
+                        + "/AdminOrderServlet"
+                );
+
+                return;
+            }
 
 
+            try {
+
+                int id =
+                        Integer.parseInt(
+                                idValue
+                        );
+
+
+                // =========================
+                // VALID STATUS CHECK
+                // =========================
+
+                if(!"Pending".equalsIgnoreCase(status) &&
+                   !"Delivered".equalsIgnoreCase(status) &&
+                   !"Cancelled".equalsIgnoreCase(status)) {
+
+                    session.setAttribute(
+                            "errorMessage",
+                            "Invalid order status."
+                    );
+
+
+                    response.sendRedirect(
+                            request.getContextPath()
+                            + "/AdminOrderServlet"
+                    );
+
+                    return;
+                }
+
+
+                // =========================
+                // CORRECT DAO METHOD
+                // =========================
+
+                boolean updated =
+                        dao.updateOrderStatus(
+                                id,
+                                status
+                        );
+
+
+                if(updated) {
+
+                    session.setAttribute(
+                            "successMessage",
+                            "Order status updated successfully."
+                    );
+
+                } else {
+
+                    session.setAttribute(
+                            "errorMessage",
+                            "Unable to update order status."
+                    );
+                }
+
+
+            } catch(NumberFormatException e) {
+
+                session.setAttribute(
+                        "errorMessage",
+                        "Invalid order ID."
+                );
+            }
+
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/AdminOrderServlet"
+            );
+
+            return;
         }
 
-        else {
+
+        // =========================
+        // SHOW ALL ORDERS
+        // =========================
+
+        ArrayList<Order> orders =
+                dao.getAllOrders();
 
 
-            ArrayList<Order> orders =
-            dao.getAllOrders();
+        request.setAttribute(
+                "orders",
+                orders
+        );
 
 
-            request.setAttribute("orders", orders);
-
-
-            request.getRequestDispatcher("manageOrders.jsp")
-                   .forward(request, response);
-
-        }
-
-
+        request.getRequestDispatcher(
+                "/manageOrders.jsp"
+        ).forward(
+                request,
+                response
+        );
     }
 
+
+    // =========================
+    // POST
+    // =========================
+
+    @Override
+    protected void doPost(
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+
+        doGet(
+                request,
+                response
+        );
+    }
 }

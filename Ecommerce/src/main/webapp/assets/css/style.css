@@ -10,6 +10,7 @@ body{
     color:#172033;
 }
 
+
 /* =========================
    NAVBAR
 ========================= */
@@ -107,12 +108,19 @@ body{
     white-space:nowrap;
 }
 
+
 /* =========================
    HERO
 ========================= */
 
 .hero{
-    background:linear-gradient(115deg,#0f172a 0%,#1e3a8a 58%,#2563eb 100%);
+    background:linear-gradient(
+        115deg,
+        #0f172a 0%,
+        #1e3a8a 58%,
+        #2563eb 100%
+    );
+
     color:white;
     text-align:left;
     padding:60px 8%;
@@ -159,8 +167,21 @@ body{
     margin-bottom:18px;
 }
 
+.hero button{
+    background:white;
+    color:#172554 !important;
+    border-radius:25px;
+    padding:14px 30px;
+}
+
+.hero button:hover{
+    background:#facc15;
+    color:#111827 !important;
+}
+
+
 /* =========================
-   ALL BUTTONS
+   GENERAL BUTTONS
 ========================= */
 
 button,
@@ -189,17 +210,6 @@ input[type="submit"]:hover,
     box-shadow:0 7px 16px rgba(37,99,235,0.35);
 }
 
-.hero button{
-    background:white;
-    color:#172554 !important;
-    border-radius:25px;
-    padding:14px 30px;
-}
-
-.hero button:hover{
-    background:#facc15;
-    color:#111827 !important;
-}
 
 /* =========================
    FORMS
@@ -272,18 +282,7 @@ input[type="submit"]:hover,
     width:100%;
     display:block;
     margin-top:12px;
-    background:linear-gradient(135deg,#1e3a8a,#2563eb);
-    color:white !important;
-    opacity:1;
-    visibility:visible;
 }
-
-.form-container input[type="submit"]:hover,
-.form-container button:hover{
-    background:linear-gradient(135deg,#172554,#1d4ed8);
-}
-
-/* Login/Register links inside forms */
 
 .form-container > a,
 .form-container p a{
@@ -301,8 +300,9 @@ input[type="submit"]:hover,
     text-decoration:underline;
 }
 
+
 /* =========================
-   FEATURE SECTION
+   FEATURES
 ========================= */
 
 .features{
@@ -331,6 +331,7 @@ input[type="submit"]:hover,
     font-size:22px;
     font-weight:bold;
 }
+
 
 /* =========================
    CARDS
@@ -366,8 +367,9 @@ input[type="submit"]:hover,
     text-decoration:none;
 }
 
+
 /* =========================
-   DASHBOARD BUTTONS
+   DASHBOARD
 ========================= */
 
 .dashboard-buttons{
@@ -386,6 +388,7 @@ input[type="submit"]:hover,
 .dashboard-buttons button{
     min-width:150px;
 }
+
 
 /* =========================
    PRODUCTS
@@ -441,20 +444,93 @@ input[type="submit"]:hover,
     text-decoration:none;
 }
 
-.product-card button{
+
+/* =========================
+   ADD TO CART + BUY NOW
+========================= */
+
+.product-buy-buttons{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:15px;
+}
+
+.product-buy-buttons a{
+    flex:1;
+    text-decoration:none;
+}
+
+.product-buy-buttons button,
+.product-buy-buttons button:first-child,
+.product-buy-buttons button:last-child{
     width:100%;
-    margin-top:8px;
+    margin:0;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    color:white !important;
+    border:none;
+    padding:11px 12px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-/* Delete remains red */
-
-.product-card a[href*="delete"] button{
-    background:#dc2626;
+.product-buy-buttons button:hover,
+.product-buy-buttons button:first-child:hover,
+.product-buy-buttons button:last-child:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
 }
 
-.product-card a[href*="delete"] button:hover{
-    background:#b91c1c;
+
+/* DELETE PRODUCT */
+
+.product-card a[href*="delete"] button,
+.delete-btn{
+    background:#dc2626 !important;
 }
+
+.product-card a[href*="delete"] button:hover,
+.delete-btn:hover{
+    background:#b91c1c !important;
+}
+
+
+/* =========================
+   CATEGORIES
+========================= */
+
+.category-filter{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px auto 30px;
+    padding:0 20px;
+}
+
+.category-filter a{
+    text-decoration:none;
+}
+
+.category-filter button{
+    border-radius:25px;
+    padding:10px 18px;
+}
+
+.product-category{
+    display:inline-block;
+    min-height:auto !important;
+    margin-bottom:10px;
+    padding:5px 12px;
+    color:#1e3a8a !important;
+    background:#dbeafe;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+}
+
 
 /* =========================
    SEARCH
@@ -493,8 +569,56 @@ input[type="submit"]:hover,
     padding:12px 26px;
 }
 
+
 /* =========================
-   TABLES
+   QUANTITY
+========================= */
+
+.quantity-box{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin:15px 0;
+}
+
+.quantity-box button{
+    width:38px;
+    height:38px;
+    padding:0;
+    border-radius:50%;
+    font-size:20px;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    color:white !important;
+}
+
+.quantity-box button:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+}
+
+.quantity-box input{
+    width:55px;
+    height:38px;
+    text-align:center;
+    border:1px solid #cbd5e1;
+    border-radius:7px;
+    font-size:16px;
+    font-weight:bold;
+    background:white;
+    color:#172554;
+}
+
+.cart-quantity{
+    min-width:40px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    color:#172554;
+}
+
+
+/* =========================
+   TABLE
 ========================= */
 
 table{
@@ -519,16 +643,126 @@ th{
     color:white;
 }
 
+
 /* =========================
-   PAYMENT
+   CHECKOUT
 ========================= */
+
+.checkout-item{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    padding:12px;
+    border-radius:8px;
+    margin:10px 0;
+}
+
+.checkout-item p{
+    margin:4px 0;
+}
 
 .checkout-btn,
 .payment-btn,
 .continue-btn{
     width:100%;
+    margin-top:12px;
+}
+
+.payment-btn{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    color:white !important;
+    border:none;
+    padding:13px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.payment-btn:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+}
+
+
+/* =========================
+   ORDER PRODUCTS
+========================= */
+
+.order-products{
+    background:#f8fafc;
+    padding:14px;
+    margin:15px 0;
+    border-radius:9px;
+    text-align:left;
+}
+
+.order-products strong{
+    color:#172554;
+}
+
+.order-product-name{
+    color:#475569 !important;
+    font-weight:600;
+    margin:7px 0 !important;
+    min-height:0 !important;
+}
+
+
+/* =========================
+   ORDER STATUS
+========================= */
+
+.order-status{
+    display:inline-block;
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.order-pending{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.order-delivered{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.order-cancelled{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.order-status-form{
     margin-top:10px;
 }
+
+.status-select{
+    width:100%;
+    padding:10px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    background:white;
+    color:#172033;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.status-select:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.update-status-btn{
+    width:100%;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+}
+
+.update-status-btn:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+}
+
 
 /* =========================
    MESSAGES
@@ -542,11 +776,422 @@ th{
 }
 
 .error-message{
+    background:#fee2e2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+    padding:12px;
+    margin:15px 0;
+    border-radius:8px;
     text-align:center;
-    color:#dc2626;
     font-weight:bold;
-    margin:20px 0;
 }
+
+
+/* =========================
+   CART SUCCESS POPUP
+========================= */
+
+.cart-success-popup{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.65);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.cart-success-box{
+    width:350px;
+    max-width:90%;
+    background:white;
+    padding:30px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,0.25);
+}
+
+.cart-success-icon,
+.cart-error-icon{
+    width:65px;
+    height:65px;
+    margin:0 auto 15px;
+    border-radius:50%;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:34px;
+    font-weight:bold;
+}
+
+.cart-success-icon{
+    background:#16a34a;
+}
+
+.cart-error-icon{
+    background:#dc2626;
+}
+
+.cart-success-box h3{
+    color:#166534;
+    margin-bottom:10px;
+}
+
+.cart-success-box p{
+    color:#64748b;
+    margin-bottom:20px;
+}
+
+.cart-success-box button{
+    min-width:100px;
+}
+
+
+/* =========================
+   SUCCESS / ERROR POPUP
+========================= */
+
+.success-popup{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.65);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.success-popup-box{
+    width:360px;
+    max-width:90%;
+    background:white;
+    padding:30px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,0.25);
+}
+
+.success-check,
+.error-check{
+    width:65px;
+    height:65px;
+    margin:0 auto 15px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:34px;
+    font-weight:bold;
+}
+
+.success-check{
+    background:#16a34a;
+}
+
+.error-check{
+    background:#dc2626;
+}
+
+.success-popup-box h3{
+    color:#166534;
+    margin-bottom:10px;
+}
+
+.success-popup-box p{
+    color:#64748b;
+    margin-bottom:22px;
+}
+
+
+/* =========================
+   LOGOUT POPUP
+========================= */
+
+.logout-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.65);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.logout-box{
+    width:380px;
+    max-width:90%;
+    background:white;
+    padding:30px;
+    border-radius:14px;
+    text-align:center;
+    box-shadow:0 10px 35px rgba(0,0,0,0.25);
+}
+
+.logout-box h2{
+    color:#172554;
+    margin-bottom:12px;
+}
+
+.logout-box p{
+    color:#64748b;
+    margin-bottom:25px;
+}
+
+.logout-actions{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+
+.cancel-logout{
+    background:#e2e8f0 !important;
+    color:#172033 !important;
+    box-shadow:none;
+}
+
+.cancel-logout:hover{
+    background:#cbd5e1 !important;
+}
+
+.confirm-logout{
+    display:inline-block;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb);
+    color:white !important;
+    padding:12px 25px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.confirm-logout:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8);
+}
+
+
+/* =========================
+   DELETE POPUP
+========================= */
+
+.delete-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.65);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.delete-box{
+    width:380px;
+    max-width:90%;
+    background:white;
+    padding:30px;
+    border-radius:14px;
+    text-align:center;
+    box-shadow:0 12px 35px rgba(0,0,0,0.25);
+}
+
+.delete-box h2{
+    color:#991b1b;
+    margin-bottom:12px;
+}
+
+.delete-box p{
+    color:#64748b;
+    margin-bottom:25px;
+}
+
+.delete-actions{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+
+.cancel-delete{
+    background:#e2e8f0 !important;
+    color:#172033 !important;
+}
+
+.confirm-delete{
+    display:inline-block;
+    background:#dc2626;
+    color:white !important;
+    padding:12px 25px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.confirm-delete:hover{
+    background:#b91c1c;
+}
+
+
+/* =========================
+   ADMIN STATISTICS
+========================= */
+
+.admin-stats{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin:35px 0;
+}
+
+.stat-card{
+    width:220px;
+    padding:25px;
+    background:linear-gradient(135deg,#172554,#2563eb);
+    color:white;
+    border-radius:14px;
+    text-align:center;
+    box-shadow:0 6px 18px rgba(37,99,235,0.25);
+}
+
+.stat-card h3{
+    color:#dbeafe;
+    margin-bottom:10px;
+}
+
+.stat-number{
+    font-size:40px;
+    font-weight:bold;
+    color:white;
+}
+
+
+/* =========================
+   CUSTOMER HOME BUTTONS
+========================= */
+
+.home-buttons{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:20px;
+}
+
+.home-buttons a{
+    text-decoration:none;
+}
+
+.home-buttons button{
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    color:white !important;
+}
+
+.home-buttons button:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+}
+
+
+/* =========================
+   ADMIN PRODUCT BUTTONS
+========================= */
+
+.admin-product-buttons{
+    display:flex;
+    width:100%;
+    gap:10px;
+    margin-top:15px;
+}
+
+.admin-product-buttons > a{
+    flex:1;
+    display:flex;
+    text-decoration:none;
+}
+
+.admin-product-buttons .edit-product-btn{
+    width:100%;
+    height:44px;
+    margin:0;
+    padding:0 10px;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    color:white !important;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.admin-product-buttons .edit-product-btn:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+}
+
+.admin-product-buttons .delete-btn{
+    flex:1;
+    width:100%;
+    height:44px;
+    margin:0;
+    padding:0 10px;
+    background:#dc2626 !important;
+    color:white !important;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.admin-product-buttons .delete-btn:hover{
+    background:#b91c1c !important;
+    color:white !important;
+}
+
+
+/* =========================
+   LOGIN BUTTON FIX
+========================= */
+
+/*
+   This fixes the problem where Login / Admin Login
+   only became visible after hovering.
+*/
+
+form input[type="submit"]{
+    display:block !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    color:white !important;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    border:none !important;
+    cursor:pointer;
+}
+
+form input[type="submit"]:hover{
+    display:block !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    color:white !important;
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+}
+
+
+/* Specifically for Login page forms */
+
+.login-btn{
+    display:block !important;
+    width:100% !important;
+    background:linear-gradient(135deg,#1e3a8a,#2563eb) !important;
+    color:white !important;
+    opacity:1 !important;
+    visibility:visible !important;
+}
+
+.login-btn:hover{
+    background:linear-gradient(135deg,#172554,#1d4ed8) !important;
+    color:white !important;
+    opacity:1 !important;
+}
+
 
 /* =========================
    RESPONSIVE
@@ -561,8 +1206,8 @@ th{
     }
 
     .logo img{
-        width:80px;
-        height:60px;
+        width:120px;
+        height:70px;
     }
 
     .menu,
@@ -607,35 +1252,61 @@ th{
 }
 
 
+@media(max-width:600px){
 
+    .product-buy-buttons{
+        flex-direction:column;
+    }
 
-.category-filter{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    margin:20px auto 30px;
-    padding:0 20px;
+    .quantity-box{
+        gap:8px;
+    }
+
+    .quantity-box button{
+        width:36px;
+        height:36px;
+    }
 }
 
-.category-filter a{
-    text-decoration:none;
+
+
+/* =========================
+   FINAL LOGIN BUTTON
+========================= */
+
+.form-container .login-button{
+    display:block !important;
+    width:100% !important;
+
+    margin-top:12px !important;
+    padding:12px 20px !important;
+
+    background:linear-gradient(
+        135deg,
+        #1e3a8a,
+        #2563eb
+    ) !important;
+
+    color:#ffffff !important;
+
+    border:none !important;
+    border-radius:8px !important;
+
+    font-size:15px !important;
+    font-weight:bold !important;
+
+    cursor:pointer !important;
+
+    opacity:1 !important;
+    visibility:visible !important;
 }
 
-.category-filter button{
-    border-radius:25px;
-    padding:10px 18px;
-}
+.form-container .login-button:hover{
+    background:linear-gradient(
+        135deg,
+        #172554,
+        #1d4ed8
+    ) !important;
 
-.product-category{
-    display:inline-block;
-    min-height:auto !important;
-    margin-bottom:10px;
-    padding:5px 12px;
-    color:#1e3a8a !important;
-    background:#dbeafe;
-    border-radius:20px;
-    font-size:13px;
-    font-weight:bold;
+    color:#ffffff !important;
 }

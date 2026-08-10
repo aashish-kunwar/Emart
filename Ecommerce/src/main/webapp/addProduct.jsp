@@ -5,10 +5,17 @@
 <%@ page import="model.User" %>
 
 <%
-User user = (User) session.getAttribute("user");
+User user =
+        (User) session.getAttribute("user");
 
-if (user == null || !"admin".equals(user.getRole())) {
-    response.sendRedirect("login.jsp");
+if(user == null ||
+   !"admin".equalsIgnoreCase(user.getRole())) {
+
+    response.sendRedirect(
+            request.getContextPath()
+            + "/login.jsp"
+    );
+
     return;
 }
 %>
@@ -23,7 +30,7 @@ if (user == null || !"admin".equals(user.getRole())) {
 <title>Add Product - EMart</title>
 
 <link rel="stylesheet"
-      href="<%=request.getContextPath()%>/assets/css/style.css?v=8">
+      href="<%=request.getContextPath()%>/assets/css/style.css?v=4000">
 
 </head>
 
@@ -31,31 +38,46 @@ if (user == null || !"admin".equals(user.getRole())) {
 
 <jsp:include page="navbar.jsp" />
 
+
 <div class="form-container">
 
-    <h2>Add New Product</h2>
+    <h2>
+        Add New Product
+    </h2>
 
-    <form action="ProductServlet" method="post">
+
+    <form action="<%=request.getContextPath()%>/ProductServlet"
+          method="post">
+
 
         <input type="hidden"
                name="action"
                value="add">
 
-        <label>Product Name</label>
+
+        <label>
+            Product Name
+        </label>
 
         <input type="text"
                name="name"
                placeholder="Enter product name"
                required>
 
-        <label>Description</label>
+
+        <label>
+            Description
+        </label>
 
         <textarea name="description"
                   rows="4"
                   placeholder="Enter product description"
                   required></textarea>
 
-        <label>Price</label>
+
+        <label>
+            Price
+        </label>
 
         <input type="number"
                name="price"
@@ -64,53 +86,88 @@ if (user == null || !"admin".equals(user.getRole())) {
                placeholder="Enter price"
                required>
 
-        <label>Image URL</label>
+
+        <label>
+            Image URL
+        </label>
 
         <input type="text"
                name="image"
                placeholder="Paste product image URL"
                required>
 
-        <label>Category</label>
 
-        <select name="category" required>
+        <label>
+            Category
+        </label>
+
+        <select name="category"
+                required>
+
 
             <option value="">
                 Select Category
             </option>
 
-            <option value="Electronics">
-                Electronics
+
+            <option value="Local Food & Grocery">
+                Local Food & Grocery
             </option>
 
-            <option value="Fashion">
-                Fashion
+
+            <option value="Tea & Coffee">
+                Tea & Coffee
             </option>
 
-            <option value="Groceries">
-                Groceries
+
+            <option value="Clothing & Textiles">
+                Clothing & Textiles
             </option>
+
 
             <option value="Handicrafts">
                 Handicrafts
             </option>
 
-            <option value="Books">
-                Books
+
+            <option value="Lokta & Stationery">
+                Lokta & Stationery
             </option>
+
+
+            <option value="Jewelry & Accessories">
+                Jewelry & Accessories
+            </option>
+
+
+            <option value="Home & Décor">
+                Home & Décor
+            </option>
+
+
+            <option value="Gifts & Souvenirs">
+                Gifts & Souvenirs
+            </option>
+
 
             <option value="Others">
                 Others
             </option>
 
+
         </select>
 
-        <input type="submit"
-               value="Add Product">
+
+        <button type="submit">
+            Add Product
+        </button>
+
 
     </form>
 
+
 </div>
+
 
 </body>
 
